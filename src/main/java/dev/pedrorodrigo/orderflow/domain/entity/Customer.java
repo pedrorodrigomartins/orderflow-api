@@ -1,4 +1,4 @@
-package dev.pedrorodrigo.orderflow.entity;
+package dev.pedrorodrigo.orderflow.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
