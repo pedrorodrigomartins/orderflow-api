@@ -34,6 +34,12 @@ public class Customer {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    public Customer(String name, String cpf, String email) {
+        this.name = name;
+        this.cpf = cpf;
+        this.email = email;
+    }
+
     @PrePersist
     private void prePersist() {
         createdAt = LocalDateTime.now();
