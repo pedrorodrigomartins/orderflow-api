@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExistingCustomerException.class)
-    public ResponseEntity<ErrorResponse> existingCustomerException(
+    public ResponseEntity<ErrorResponse> handleExistingCustomerException(
             ExistingCustomerException ex,
             HttpServletRequest request
     ) {
