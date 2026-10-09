@@ -30,6 +30,11 @@ public class Category {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    public Category(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     @PrePersist
     private void prePersist() {
         createdAt = LocalDateTime.now();
