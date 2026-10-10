@@ -1,12 +1,12 @@
 package dev.pedrorodrigo.orderflow.dto;
 
-import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 
 public record CreateCategoryRequest(
 
-        @Column(nullable = false, unique = true)
+        @NotBlank(message = "Name is required")
         String name,
 
-        @Column(columnDefinition = "TEXT")
+        @NotBlank(message = "description is required")
         String description
 ) {}
