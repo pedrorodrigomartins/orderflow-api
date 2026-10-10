@@ -3,7 +3,7 @@ package dev.pedrorodrigo.orderflow.domain.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,8 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "products")
 public class Product {
@@ -50,6 +49,22 @@ public class Product {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    public Product(
+            String name,
+            String sku,
+            Integer stockQuantity,
+            String description,
+            BigDecimal price,
+            Category category
+    ) {
+        this.name = name;
+        this.sku = sku;
+        this.stockQuantity = stockQuantity;
+        this.description = description;
+        this.price = price;
+        this.category = category;
+    }
 
     @PrePersist
     private void prePersist() {
