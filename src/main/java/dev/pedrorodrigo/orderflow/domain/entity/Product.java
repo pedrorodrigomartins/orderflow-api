@@ -6,6 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,19 +21,24 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(length = 100, nullable = false)
     private String name;
 
+    @Setter
     @Column(length = 50, nullable = false, unique = true)
     private String sku;
 
+    @Setter
     @PositiveOrZero
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
+    @Setter
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Setter
     @Positive
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
@@ -40,6 +46,7 @@ public class Product {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -64,6 +71,10 @@ public class Product {
         this.description = description;
         this.price = price;
         this.category = category;
+    }
+
+    public void changeActiveStatus(boolean active) {
+        this.active = active;
     }
 
     @PrePersist
