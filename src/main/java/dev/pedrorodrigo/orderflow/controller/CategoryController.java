@@ -1,7 +1,7 @@
 package dev.pedrorodrigo.orderflow.controller;
 
-import dev.pedrorodrigo.orderflow.dto.CategoryResponse;
-import dev.pedrorodrigo.orderflow.dto.CreateCategoryRequest;
+import dev.pedrorodrigo.orderflow.dto.response.CategoryResponse;
+import dev.pedrorodrigo.orderflow.dto.request.CreateCategoryRequest;
 import dev.pedrorodrigo.orderflow.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

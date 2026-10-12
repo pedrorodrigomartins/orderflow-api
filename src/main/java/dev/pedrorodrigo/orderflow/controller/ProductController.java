@@ -1,7 +1,7 @@
 package dev.pedrorodrigo.orderflow.controller;
 
-import dev.pedrorodrigo.orderflow.dto.CreateProductRequest;
-import dev.pedrorodrigo.orderflow.dto.ProductResponse;
+import dev.pedrorodrigo.orderflow.dto.request.CreateProductRequest;
+import dev.pedrorodrigo.orderflow.dto.response.ProductResponse;
 import dev.pedrorodrigo.orderflow.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

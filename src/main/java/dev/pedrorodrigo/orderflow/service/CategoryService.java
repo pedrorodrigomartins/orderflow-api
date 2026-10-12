@@ -1,8 +1,8 @@
 package dev.pedrorodrigo.orderflow.service;
 
 import dev.pedrorodrigo.orderflow.domain.entity.Category;
-import dev.pedrorodrigo.orderflow.dto.CategoryResponse;
-import dev.pedrorodrigo.orderflow.dto.CreateCategoryRequest;
+import dev.pedrorodrigo.orderflow.dto.response.CategoryResponse;
+import dev.pedrorodrigo.orderflow.dto.request.CreateCategoryRequest;
 import dev.pedrorodrigo.orderflow.exception.CategoryInUseException;
 import dev.pedrorodrigo.orderflow.exception.CategoryNotFoundException;
 import dev.pedrorodrigo.orderflow.exception.ExistingCategoryException;

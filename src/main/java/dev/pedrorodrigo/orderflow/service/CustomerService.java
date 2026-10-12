@@ -1,8 +1,8 @@
 package dev.pedrorodrigo.orderflow.service;
 
 import dev.pedrorodrigo.orderflow.domain.entity.Customer;
-import dev.pedrorodrigo.orderflow.dto.CreateCustomerRequest;
-import dev.pedrorodrigo.orderflow.dto.CustomerResponse;
+import dev.pedrorodrigo.orderflow.dto.request.CreateCustomerRequest;
+import dev.pedrorodrigo.orderflow.dto.response.CustomerResponse;
 import dev.pedrorodrigo.orderflow.exception.ExistingCustomerException;
 import dev.pedrorodrigo.orderflow.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;

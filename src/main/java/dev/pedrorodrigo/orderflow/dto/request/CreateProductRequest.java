@@ -1,4 +1,4 @@
-package dev.pedrorodrigo.orderflow.dto;
+package dev.pedrorodrigo.orderflow.dto.request;
 
 import jakarta.validation.constraints.*;
 

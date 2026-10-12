@@ -3,8 +3,8 @@ package dev.pedrorodrigo.orderflow.service;
 
 import dev.pedrorodrigo.orderflow.domain.entity.Category;
 import dev.pedrorodrigo.orderflow.domain.entity.Product;
-import dev.pedrorodrigo.orderflow.dto.CreateProductRequest;
-import dev.pedrorodrigo.orderflow.dto.ProductResponse;
+import dev.pedrorodrigo.orderflow.dto.request.CreateProductRequest;
+import dev.pedrorodrigo.orderflow.dto.response.ProductResponse;
 import dev.pedrorodrigo.orderflow.exception.CategoryNotFoundException;
 import dev.pedrorodrigo.orderflow.exception.DuplicateSkuException;
 import dev.pedrorodrigo.orderflow.exception.ProductNotFoundException;

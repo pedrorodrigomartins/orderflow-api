@@ -1,4 +1,4 @@
-package dev.pedrorodrigo.orderflow.dto;
+package dev.pedrorodrigo.orderflow.dto.response;
 
 import java.time.LocalDateTime;
 

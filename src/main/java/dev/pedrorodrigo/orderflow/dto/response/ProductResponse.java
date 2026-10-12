@@ -1,4 +1,4 @@
-package dev.pedrorodrigo.orderflow.dto;
+package dev.pedrorodrigo.orderflow.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
