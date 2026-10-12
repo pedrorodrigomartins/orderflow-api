@@ -1,17 +1,17 @@
+
 package dev.pedrorodrigo.orderflow.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
         name = "order_items",
@@ -44,8 +44,22 @@ public class OrderItem {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    public OrderItem(Product product, Integer quantity, BigDecimal unitPrice) {
+        this.product = product;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+    }
+
+    void assignOrder(Order order) {
+        this.order = order;
+    }
+
+    public BigDecimal getSubtotal() {
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
     @PrePersist
     private void prePersist() {
-        this.createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 }
