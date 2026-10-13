@@ -1,6 +1,5 @@
 package dev.pedrorodrigo.orderflow.controller;
 
-import dev.pedrorodrigo.orderflow.domain.enums.OrderStatus;
 import dev.pedrorodrigo.orderflow.dto.request.CreateOrderRequest;
 import dev.pedrorodrigo.orderflow.dto.request.UpdateOrderStatusRequest;
 import dev.pedrorodrigo.orderflow.dto.response.OrderResponse;
