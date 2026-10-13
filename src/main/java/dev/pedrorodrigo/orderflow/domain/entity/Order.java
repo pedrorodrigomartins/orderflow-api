@@ -2,6 +2,8 @@
 package dev.pedrorodrigo.orderflow.domain.entity;
 
 import dev.pedrorodrigo.orderflow.domain.enums.OrderStatus;
+import dev.pedrorodrigo.orderflow.exception.InvalidOrderCancellationException;
+import dev.pedrorodrigo.orderflow.exception.InvalidOrderStatusTransitionException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
@@ -56,6 +58,40 @@ public class Order {
         items.add(item);
         item.assignOrder(this);
         totalAmount = totalAmount.add(item.getSubtotal());
+    }
+
+    public void changeStatus(OrderStatus newStatus) {
+        if (newStatus == null) {
+            throw new IllegalArgumentException(
+                    "Order status cannot be null."
+            );
+        }
+
+        boolean validTransition = switch (this.status) {
+            case PENDING -> newStatus == OrderStatus.PAID;
+            case PAID -> newStatus == OrderStatus.SHIPPED;
+            case SHIPPED -> newStatus == OrderStatus.DELIVERED;
+            case DELIVERED, CANCELLED -> false;
+        };
+
+        if (!validTransition) {
+            throw new InvalidOrderStatusTransitionException(
+                    "Cannot change order status from "
+                            + this.status + " to " + newStatus
+            );
+        }
+
+        this.status = newStatus;
+    }
+
+    public void cancel() {
+        if (this.status != OrderStatus.PENDING) {
+            throw new InvalidOrderCancellationException(
+                    "Only pending orders can be cancelled."
+            );
+        }
+
+        this.status = OrderStatus.CANCELLED;
     }
 
     @PrePersist
