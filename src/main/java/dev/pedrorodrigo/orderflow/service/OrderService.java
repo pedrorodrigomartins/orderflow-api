@@ -5,6 +5,7 @@ import dev.pedrorodrigo.orderflow.domain.entity.Customer;
 import dev.pedrorodrigo.orderflow.domain.entity.Order;
 import dev.pedrorodrigo.orderflow.domain.entity.OrderItem;
 import dev.pedrorodrigo.orderflow.domain.entity.Product;
+import dev.pedrorodrigo.orderflow.domain.enums.OrderStatus;
 import dev.pedrorodrigo.orderflow.dto.request.CreateOrderItemRequest;
 import dev.pedrorodrigo.orderflow.dto.request.CreateOrderRequest;
 import dev.pedrorodrigo.orderflow.dto.response.OrderItemResponse;
@@ -54,7 +55,6 @@ public class OrderService {
                         "Order item must have a product ID and a positive quantity."
                 );
             }
-
             if (!productIds.add(item.productId())) {
                 throw new DuplicateOrderItemException(
                         "Product with id '" + item.productId() + "' is duplicated."
@@ -71,7 +71,6 @@ public class OrderService {
                         "Product with id '" + product.getId() + "' is inactive."
                 );
             }
-
             if (product.getStockQuantity() < item.quantity()) {
                 throw new InsufficientStockException(
                         "Insufficient stock for product with id '" + product.getId() + "'."
@@ -90,6 +89,55 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
         return toResponse(savedOrder);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderById(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order with id '" + orderId + "' not found."
+                ));
+        return toResponse(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getOrdersByCustomerId(Long customerId) {
+        List<Order> orders = orderRepository.findByCustomerId(customerId);
+        return orders.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    public OrderResponse updateOrderStatus(Long id, OrderStatus status) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order with id '" + id + "' not found."
+                ));
+
+        order.changeStatus(status);
+
+        return toResponse(order);
+    }
+
+    @Transactional
+    public OrderResponse cancelOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order with id '" + id + "' not found."
+                ));
+
+        order.cancel();
+
+        return toResponse(order);
     }
 
     private OrderItemResponse toItemResponse(OrderItem item) {
