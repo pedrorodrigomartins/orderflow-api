@@ -1,5 +1,6 @@
 package dev.pedrorodrigo.orderflow.domain.entity;
 
+import dev.pedrorodrigo.orderflow.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -75,6 +76,32 @@ public class Product {
 
     public void changeActiveStatus(boolean active) {
         this.active = active;
+    }
+
+    public void decreaseStock(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException(
+                    "Quantity must be greater than zero."
+            );
+        }
+
+        if (stockQuantity < quantity) {
+            throw new InsufficientStockException(
+                    "Insufficient stock for product with id '" + id + "'."
+            );
+        }
+
+        this.stockQuantity -= quantity;
+    }
+
+    public void increaseStock(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException(
+                    "Quantity must be greater than zero."
+            );
+        }
+
+        this.stockQuantity += quantity;
     }
 
     @PrePersist

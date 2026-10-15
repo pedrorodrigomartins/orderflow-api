@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +45,6 @@ public class OrderService {
                         "Customer with id '" + request.customerId() + "' not found."
                 ));
 
-        Order order = new Order(customer);
         Set<Long> productIds = new HashSet<>();
 
         for (CreateOrderItemRequest item : request.items()) {
@@ -55,13 +55,24 @@ public class OrderService {
                         "Order item must have a product ID and a positive quantity."
                 );
             }
+
             if (!productIds.add(item.productId())) {
                 throw new DuplicateOrderItemException(
                         "Product with id '" + item.productId() + "' is duplicated."
                 );
             }
+        }
 
-            Product product = productRepository.findById(item.productId())
+        List<CreateOrderItemRequest> sortedItems = request.items()
+                .stream()
+                .sorted(Comparator.comparing(CreateOrderItemRequest::productId))
+                .toList();
+
+        Order order = new Order(customer);
+
+        for (CreateOrderItemRequest item : sortedItems) {
+
+            Product product = productRepository.findByIdForUpdate(item.productId())
                     .orElseThrow(() -> new ProductNotFoundException(
                             "Product with id '" + item.productId() + "' not found."
                     ));
@@ -71,11 +82,8 @@ public class OrderService {
                         "Product with id '" + product.getId() + "' is inactive."
                 );
             }
-            if (product.getStockQuantity() < item.quantity()) {
-                throw new InsufficientStockException(
-                        "Insufficient stock for product with id '" + product.getId() + "'."
-                );
-            }
+
+            product.decreaseStock(item.quantity());
 
             OrderItem orderItem = new OrderItem(
                     product,
@@ -130,12 +138,28 @@ public class OrderService {
 
     @Transactional
     public OrderResponse cancelOrder(Long id) {
-        Order order = orderRepository.findById(id)
+        Order order = orderRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new OrderNotFoundException(
                         "Order with id '" + id + "' not found."
                 ));
 
         order.cancel();
+
+        List<OrderItem> sortedItems = order.getItems()
+                .stream()
+                .sorted(Comparator.comparing(item -> item.getProduct().getId()))
+                .toList();
+
+        for (OrderItem item : sortedItems) {
+            Long productId = item.getProduct().getId();
+
+            Product product = productRepository.findByIdForUpdate(productId)
+                    .orElseThrow(() -> new ProductNotFoundException(
+                            "Product with id '" + productId + "' not found."
+                    ));
+
+            product.increaseStock(item.getQuantity());
+        }
 
         return toResponse(order);
     }
