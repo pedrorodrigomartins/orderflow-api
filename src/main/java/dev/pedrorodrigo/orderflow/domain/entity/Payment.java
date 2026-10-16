@@ -4,6 +4,7 @@ import dev.pedrorodrigo.orderflow.domain.enums.PaymentMethod;
 import dev.pedrorodrigo.orderflow.domain.enums.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "payments")
 public class Payment {
@@ -51,14 +51,50 @@ public class Payment {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    public Payment(
+            Order order,
+            PaymentMethod paymentMethod,
+            Integer installments,
+            LocalDateTime expiresAt
+    ) {
+        if (order == null) {
+            throw new IllegalArgumentException("Order cannot be null.");
+        }
+
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("Payment method cannot be null.");
+        }
+
+        if (installments == null || installments <= 0) {
+            throw new IllegalArgumentException(
+                    "Installments must be greater than zero."
+            );
+        }
+
+        if (expiresAt == null || !expiresAt.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException(
+                    "Expiration date must be in the future."
+            );
+        }
+
+        this.order = order;
+        this.amount = order.getTotalAmount();
+        this.paymentMethod = paymentMethod;
+        this.status = PaymentStatus.PENDING;
+        this.installments = installments;
+        this.expiresAt = expiresAt;
+    }
+
     @PrePersist
     private void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     @PreUpdate
     private void preUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
