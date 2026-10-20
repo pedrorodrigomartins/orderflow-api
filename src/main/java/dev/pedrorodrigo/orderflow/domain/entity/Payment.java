@@ -85,6 +85,31 @@ public class Payment {
         this.expiresAt = expiresAt;
     }
 
+    public void complete() {
+        if (this.status != PaymentStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Only pending payments can be completed."
+            );
+        }
+        if (!this.expiresAt.isAfter(LocalDateTime.now())) {
+            throw new IllegalStateException(
+                    "Expired payments cannot be completed."
+            );
+        }
+
+        this.status = PaymentStatus.COMPLETED;
+    }
+
+    public void fail() {
+        if (this.status != PaymentStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Only pending payments can be failed."
+            );
+        }
+
+        this.status = PaymentStatus.FAILED;
+    }
+
     @PrePersist
     private void prePersist() {
         LocalDateTime now = LocalDateTime.now();
