@@ -8,6 +8,7 @@ import dev.pedrorodrigo.orderflow.dto.request.CreatePaymentRequest;
 import dev.pedrorodrigo.orderflow.dto.response.PaymentResponse;
 import dev.pedrorodrigo.orderflow.exception.OrderNotFoundException;
 import dev.pedrorodrigo.orderflow.exception.PaymentAlreadyExistsException;
+import dev.pedrorodrigo.orderflow.exception.PaymentNotFoundException;
 import dev.pedrorodrigo.orderflow.repository.OrderRepository;
 import dev.pedrorodrigo.orderflow.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,64 @@ public class PaymentService {
         Payment savedPayment = paymentRepository.save(payment);
 
         return toResponse(savedPayment);
+    }
+
+    @Transactional
+    public PaymentResponse completePayment(Long paymentId) {
+        Long orderId = paymentRepository.findOrderIdByPaymentId(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(
+                        "Payment with id '" + paymentId + "' not found."
+                ));
+
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order with id '" + orderId + "' not found."
+                ));
+
+        Payment payment = paymentRepository.findByIdForUpdate(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(
+                        "Payment with id '" + paymentId + "' not found."
+                ));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Only pending orders can have payments completed."
+            );
+        }
+
+        payment.complete();
+
+        order.changeStatus(OrderStatus.PAID);
+
+        return toResponse(payment);
+    }
+
+    @Transactional
+    public PaymentResponse failPayment(Long paymentId) {
+        Long orderId = paymentRepository.findOrderIdByPaymentId(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(
+                        "Payment with id '" + paymentId + "' not found."
+                ));
+
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order with id '" + orderId + "' not found."
+                ));
+
+        Payment payment = paymentRepository.findByIdForUpdate(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(
+                        "Payment with id '" + paymentId + "' not found."
+                ));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Only payments from pending orders can be failed."
+            );
+        }
+
+        payment.fail();
+
+        return toResponse(payment);
     }
 
     private PaymentResponse toResponse(Payment payment) {
