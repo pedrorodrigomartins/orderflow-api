@@ -20,4 +20,14 @@ public class PaymentController {
     public PaymentResponse createPayment(@RequestBody @Valid CreatePaymentRequest request) {
         return paymentService.createPayment(request);
     }
+
+    @PatchMapping("/{id}/complete")
+    public PaymentResponse completePayment(@PathVariable Long id) {
+        return paymentService.completePayment(id);
+    }
+
+    @PatchMapping("/{id}/fail")
+    public PaymentResponse failPayment(@PathVariable Long id) {
+        return paymentService.failPayment(id);
+    }
 }
