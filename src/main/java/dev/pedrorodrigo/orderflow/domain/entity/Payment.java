@@ -79,6 +79,12 @@ public class Payment {
             );
         }
 
+        if (expiresAt == null || !expiresAt.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException(
+                    "Payment expiration date must be in the future."
+            );
+        }
+
         this.order = order;
         this.amount = order.getTotalAmount();
         this.paymentMethod = paymentMethod;
@@ -112,6 +118,20 @@ public class Payment {
         }
 
         this.status = PaymentStatus.FAILED;
+    }
+
+    public boolean isExpired() {
+        return !expiresAt.isAfter(LocalDateTime.now());
+    }
+
+    public void cancel() {
+        if (this.status != PaymentStatus.PENDING) {
+            throw new InvalidPaymentStatusTransitionException(
+                    "Only pending payments can be cancelled."
+            );
+        }
+
+        this.status = PaymentStatus.CANCELLED;
     }
 
     @PrePersist

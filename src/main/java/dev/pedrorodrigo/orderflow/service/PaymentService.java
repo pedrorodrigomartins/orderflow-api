@@ -38,16 +38,26 @@ public class PaymentService {
             );
         }
 
-        boolean paymentExists = paymentRepository.existsByOrderIdAndStatusIn(
-                order.getId(),
-                List.of(PaymentStatus.PENDING, PaymentStatus.COMPLETED)
-        );
+        List<Payment> payments = paymentRepository.findByOrderId(order.getId());
 
-        if (paymentExists) {
-            throw new PaymentAlreadyExistsException(
-                    "Order with id '" + order.getId()
-                            + "' already has a pending or completed payment."
-            );
+        for (Payment existingPayment : payments) {
+            if (existingPayment.getStatus() == PaymentStatus.COMPLETED) {
+                throw new PaymentAlreadyExistsException(
+                        "Order with id '" + order.getId()
+                                + "' already has a completed payment."
+                );
+            }
+            if (existingPayment.getStatus() == PaymentStatus.PENDING) {
+
+                if (existingPayment.isExpired()) {
+                    existingPayment.cancel();
+                } else {
+                    throw new PaymentAlreadyExistsException(
+                            "Order with id '" + order.getId()
+                                    + "' already has an active pending payment."
+                    );
+                }
+            }
         }
 
         Payment payment = new Payment(
