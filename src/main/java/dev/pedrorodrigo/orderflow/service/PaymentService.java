@@ -6,6 +6,7 @@ import dev.pedrorodrigo.orderflow.domain.enums.OrderStatus;
 import dev.pedrorodrigo.orderflow.domain.enums.PaymentStatus;
 import dev.pedrorodrigo.orderflow.dto.request.CreatePaymentRequest;
 import dev.pedrorodrigo.orderflow.dto.response.PaymentResponse;
+import dev.pedrorodrigo.orderflow.exception.InvalidOrderStatusTransitionException;
 import dev.pedrorodrigo.orderflow.exception.OrderNotFoundException;
 import dev.pedrorodrigo.orderflow.exception.PaymentAlreadyExistsException;
 import dev.pedrorodrigo.orderflow.exception.PaymentNotFoundException;
@@ -79,8 +80,8 @@ public class PaymentService {
                 ));
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException(
-                    "Only pending orders can have payments completed."
+            throw new InvalidOrderStatusTransitionException(
+                    "Only pending orders can have payments processed."
             );
         }
 
@@ -109,8 +110,8 @@ public class PaymentService {
                 ));
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException(
-                    "Only payments from pending orders can be failed."
+            throw new InvalidOrderStatusTransitionException(
+                    "Only pending orders can have payments processed."
             );
         }
 
