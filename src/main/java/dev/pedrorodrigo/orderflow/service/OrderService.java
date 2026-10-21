@@ -17,6 +17,9 @@ import dev.pedrorodrigo.orderflow.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import dev.pedrorodrigo.orderflow.domain.entity.Payment;
+import dev.pedrorodrigo.orderflow.domain.enums.PaymentStatus;
+import dev.pedrorodrigo.orderflow.repository.PaymentRepository;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -30,6 +33,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final PaymentRepository paymentRepository;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
@@ -126,10 +130,16 @@ public class OrderService {
 
     @Transactional
     public OrderResponse updateOrderStatus(Long id, OrderStatus status) {
-        Order order = orderRepository.findById(id)
+        Order order = orderRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new OrderNotFoundException(
                         "Order with id '" + id + "' not found."
                 ));
+
+        if (status == OrderStatus.PAID) {
+            throw new InvalidOrderStatusTransitionException(
+                    "Orders can only be marked as PAID through payment confirmation."
+            );
+        }
 
         order.changeStatus(status);
 
@@ -138,6 +148,7 @@ public class OrderService {
 
     @Transactional
     public OrderResponse cancelOrder(Long id) {
+
         Order order = orderRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new OrderNotFoundException(
                         "Order with id '" + id + "' not found."
@@ -145,12 +156,25 @@ public class OrderService {
 
         order.cancel();
 
+        List<Payment> pendingPayments = paymentRepository
+                .findByOrderIdAndStatusOrderByIdAsc(
+                        id,
+                        PaymentStatus.PENDING
+                );
+
+        for (Payment payment : pendingPayments) {
+            payment.cancel();
+        }
+
         List<OrderItem> sortedItems = order.getItems()
                 .stream()
-                .sorted(Comparator.comparing(item -> item.getProduct().getId()))
+                .sorted(Comparator.comparing(
+                        item -> item.getProduct().getId()
+                ))
                 .toList();
 
         for (OrderItem item : sortedItems) {
+
             Long productId = item.getProduct().getId();
 
             Product product = productRepository.findByIdForUpdate(productId)
