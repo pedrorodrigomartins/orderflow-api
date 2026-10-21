@@ -119,6 +119,30 @@ public class PaymentService {
         return toResponse(payment);
     }
 
+    @Transactional(readOnly = true)
+    public PaymentResponse getPaymentById(Long id) {
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new PaymentNotFoundException(
+                        "Payment with id '" + id + "' not found."
+                ));
+
+        return toResponse(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsByOrderId(Long orderId) {
+        if (!orderRepository.existsById(orderId)) {
+            throw new OrderNotFoundException(
+                    "Order with id '" + orderId + "' not found."
+            );
+        }
+
+        return paymentRepository.findByOrderId(orderId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private PaymentResponse toResponse(Payment payment) {
         return new PaymentResponse(
                 payment.getId(),
