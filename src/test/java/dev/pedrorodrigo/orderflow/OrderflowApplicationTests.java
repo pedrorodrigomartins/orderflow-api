@@ -1,13 +1,11 @@
 package dev.pedrorodrigo.orderflow;
 
+import dev.pedrorodrigo.orderflow.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class OrderflowApplicationTests {
+class OrderflowApplicationTests extends AbstractIntegrationTest {
 
 	@Test
 	void contextLoads() {
 	}
-
 }
