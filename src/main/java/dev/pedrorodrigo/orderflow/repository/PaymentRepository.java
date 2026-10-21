@@ -8,18 +8,15 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByOrderId(Long orderId);
-    List<Payment> findByOrderIdAndStatus(Long orderId, String status);
-
-    boolean existsByOrderIdAndStatusIn(
+    List<Payment> findByOrderIdAndStatus(
             Long orderId,
-            Collection<PaymentStatus> status
+            PaymentStatus status
     );
 
     @Query("SELECT p.order.id FROM Payment p WHERE p.id = :id")
@@ -28,5 +25,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Payment p WHERE p.id = :id")
     Optional<Payment> findByIdForUpdate(@Param("id") Long id);
+
+    List<Payment> findByOrderIdAndStatusOrderByIdAsc(
+            Long orderId,
+            PaymentStatus status
+    );
 
 }
