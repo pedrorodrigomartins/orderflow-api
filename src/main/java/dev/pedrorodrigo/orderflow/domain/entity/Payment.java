@@ -2,6 +2,8 @@ package dev.pedrorodrigo.orderflow.domain.entity;
 
 import dev.pedrorodrigo.orderflow.domain.enums.PaymentMethod;
 import dev.pedrorodrigo.orderflow.domain.enums.PaymentStatus;
+import dev.pedrorodrigo.orderflow.exception.InvalidPaymentStatusTransitionException;
+import dev.pedrorodrigo.orderflow.exception.PaymentExpiredException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
@@ -87,13 +89,14 @@ public class Payment {
 
     public void complete() {
         if (this.status != PaymentStatus.PENDING) {
-            throw new IllegalStateException(
-                    "Only pending payments can be completed."
+            throw new InvalidPaymentStatusTransitionException(
+                    "Only pending payments can be completed. Current status: "
+                            + this.status
             );
         }
         if (!this.expiresAt.isAfter(LocalDateTime.now())) {
-            throw new IllegalStateException(
-                    "Expired payments cannot be completed."
+            throw new PaymentExpiredException(
+                    "Payment with id '" + this.id + "' has expired."
             );
         }
 
@@ -102,8 +105,9 @@ public class Payment {
 
     public void fail() {
         if (this.status != PaymentStatus.PENDING) {
-            throw new IllegalStateException(
-                    "Only pending payments can be failed."
+            throw new InvalidPaymentStatusTransitionException(
+                    "Only pending payments can be failed. Current status: "
+                            + this.status
             );
         }
 
